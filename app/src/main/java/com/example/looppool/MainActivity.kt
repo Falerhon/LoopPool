@@ -1,9 +1,13 @@
 package com.example.looppool
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -28,10 +32,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.looppool.ui.theme.LoopPoolTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,21 +49,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LoopPoolTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        word = "Android",
-                        definition = "An OS that is way better than IOS dwmaidpwa jdoapdj waopj odwapdj wopajdowapj opajdwop ajwopaj opajodjowapjdwaop joapdjwo apjd awfh uiawh wioahwpajodp ajwopjd opwaj ddowppajdowajd owpwjopj odja opwaj uiosnvsneioa naiowihjj fipoka njiscanj wikoaniaopjo pj poj ipjieanfip jiojfoipeajoap jipjip pa;w ",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            val navController = rememberNavController()
+            NavHost(navController = navController, startDestination = "mainActivity", builder = {
+                composable ("mainActivity"){ Greeting(word = "Android",
+                    definition = "An OS that is way better than IOS dwmaidpwa jdoapdj waopj odwapdj wopajdowapj opajdwop ajwopaj opajodjowapjdwaop joapdjwo apjd awfh uiawh wioahwpajodp ajwopjd opwaj ddowppajdowajd owpwjopj odja opwaj uiosnvsneioa naiowihjj fipoka njiscanj wikoaniaopjo pj poj ipjieanfip jiojfoipeajoap jipjip pa;w ",
+                    modifier = Modifier.padding(), navController) }
+
+                composable("gameActivity") { GameActivityLayout(listOf<String>("apple", "bottle", "pneumonoultramicroscopicsilicovolcanoconiosis", "house", "keyboard")) }
+            })
+
         }
     }
 }
 
 @Composable
-fun Greeting(word: String, definition: String, modifier: Modifier = Modifier) {
+fun Greeting(word: String, definition: String, modifier: Modifier = Modifier, navController : NavController? = null) {
     Column(
         modifier = Modifier.padding(top = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -99,7 +109,9 @@ fun Greeting(word: String, definition: String, modifier: Modifier = Modifier) {
             }
         }
 
-        Button(onClick = { /*TODO*/ },
+        Button(onClick = {
+            navController?.navigate("gameActivity")
+        },
             modifier = Modifier.padding(16.dp)
                 .weight(1F)
                 .scale(0.75F, 0.75F)
