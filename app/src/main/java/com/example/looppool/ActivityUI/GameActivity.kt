@@ -22,16 +22,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.looppool.ActivityLogic.GameLogic
+import com.example.looppool.ActivityLogic.Score.Score
 import com.example.looppool.ActivityLogic.SharedViewModel
 
 @Composable
 fun GameActivity(navController : NavController, sharedViewModel: SharedViewModel){
     var lastWords = listOf<String>("apple", "bottle", "pneumonoultramicroscopicsilicovolcanoconiosis", "house", "keyboard")
     var modifier = Modifier
+    val context = LocalContext.current
+    val gameLogic : GameLogic = GameLogic(context, navController, sharedViewModel)
 
     Column(modifier.fillMaxSize().padding(top = 40.dp).padding(16.dp)){
         Box(
@@ -55,9 +60,11 @@ fun GameActivity(navController : NavController, sharedViewModel: SharedViewModel
                 onValueChange = { wordEntered = it },
                 label = { Text("Enter a word") }
             )
-
+            //TODO : SET THE RIGHT ON CLICK
             Button(onClick = {
-                /*TODO*/
+                //TODO : Most Likely temp thing, remove
+                val score = Score(0, gameLogic.u2, 10.0f)
+                gameLogic.EndGame(score)
             },
                 modifier = Modifier.padding(16.dp)
                     .scale(0.75F, 0.75F)
