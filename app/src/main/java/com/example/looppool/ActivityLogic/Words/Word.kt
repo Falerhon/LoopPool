@@ -11,5 +11,5 @@ data class Word (
     @ColumnInfo(name = "word")
     val Word: String,
     @ColumnInfo(name = "description")
-    val Description: String
+    val Description: String = ""
 )

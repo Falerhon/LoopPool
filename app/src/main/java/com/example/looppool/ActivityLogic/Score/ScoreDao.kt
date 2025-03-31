@@ -17,6 +17,6 @@ interface ScoreDao {
     @Query("DELETE FROM scores")
     fun clearScores()
 
-    @Query("SELECT * FROM scores ORDER BY score ASC")
+    @Query("SELECT * FROM scores ORDER BY score DESC")
     fun getScoresOrderedByScore() : List<Score>
 }

@@ -3,7 +3,9 @@ package com.example.looppool.ActivityLogic;
 import android.content.Context
 import androidx.navigation.NavController
 import com.example.looppool.ActivityLogic.Score.Score
-
+import com.example.looppool.ActivityLogic.Words.Word
+import com.example.looppool.ActivityLogic.Words.WordDatabase
+import com.example.looppool.R
 
 
 class GameLogic(currContext: Context,navController : NavController, sharedViewModel: SharedViewModel) {
@@ -18,4 +20,5 @@ class GameLogic(currContext: Context,navController : NavController, sharedViewMo
         AddScore(appContext, score)
         nav.navigate("leaderboardActivity")
     }
+
 }

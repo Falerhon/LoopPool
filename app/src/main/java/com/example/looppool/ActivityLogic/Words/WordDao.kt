@@ -9,14 +9,17 @@ import androidx.room.Upsert
 interface WordDao {
 
     @Upsert
-    fun upsertWord(word: Word)
+    suspend fun upsertWord(word: Word)
 
     @Delete
-    fun deleteWord(word: Word)
+    suspend fun deleteWord(word: Word)
 
     @Query("DELETE FROM words")
-    fun clearWords()
+    suspend fun clearWords()
 
     @Query("SELECT * FROM words WHERE word = :searchedWord")
-    fun getWord(searchedWord: String) : List<Word>
+    suspend fun getWord(searchedWord: String) : Word
+
+    @Query("SELECT * FROM words")
+    suspend fun getAllWords(): List<Word>
 }
