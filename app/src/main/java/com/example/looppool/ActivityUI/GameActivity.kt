@@ -191,7 +191,8 @@ suspend fun VerifyWord(
     database: WordDatabase
 ): Boolean {
     val wordDao = database.dao()
-    val foundWord = wordDao.getWord(wordToSearch) ?: return false
+    val cleanedWord = wordToSearch.trim().lowercase()
+    val foundWord = wordDao.getWord(cleanedWord) ?: return false
 
     val isValidWord = if (gameLogic.lastWords.isEmpty()) {
         foundWord != null
