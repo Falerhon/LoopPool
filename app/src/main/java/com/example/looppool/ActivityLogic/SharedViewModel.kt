@@ -54,13 +54,13 @@ class SharedViewModel(private val context : Context) : ViewModel(){
 
     init{
         viewModelScope.launch {
-            UserPreferences.getUsername(context, 1).collect {
-                _usernameP1.value = it
-            }
+            UserPreferences.getUsername(context, 1)
+                .collect { _usernameP1.value = it }
+        }
 
-            UserPreferences.getUsername(context, 2).collect {
-                _usernameP2.value = it
-            }
+        viewModelScope.launch {
+            UserPreferences.getUsername(context, 2)
+                .collect { _usernameP2.value = it }
         }
     }
 

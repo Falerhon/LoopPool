@@ -39,6 +39,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
 import com.example.looppool.ActivityLogic.GameLogic
+import com.example.looppool.ActivityLogic.GameManager
 import com.example.looppool.ActivityLogic.Score.Score
 import com.example.looppool.ActivityLogic.SharedViewModel
 import com.example.looppool.ActivityLogic.Words.Word
@@ -47,10 +48,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel) {
-    val lastWords = remember { mutableStateListOf<String>() }
     var modifier = Modifier
     val context = LocalContext.current
-    val gameLogic: GameLogic = GameLogic(context, navController, sharedViewModel)
+    val gameLogic = GameManager.getInstance(context,navController,sharedViewModel)
     val database = WordDatabase.getInstance(LocalContext.current)
     var wordEntered by remember { mutableStateOf(TextFieldValue("")) }
     var showPopup by remember { mutableStateOf(false) }
@@ -70,7 +70,7 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                 .weight(.5f)
         ) {
             Text("Last words : ", fontSize = 24.sp)
-            PrintLastWords(lastWords)
+            PrintLastWords(gameLogic.lastWords)
         }
 
         Column(
@@ -97,14 +97,14 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        val isValid = VerifyWord(wordEntered.text, lastWords, database)
+                        val isValid = VerifyWord(wordEntered.text, gameLogic, database)
                         if (isValid) {
                             message =
-                                "${wordEntered.text} is valid! \n Pass the phone to Player ${if (lastWords.size % 2 == 1) 2 else 1}"
+                                "${wordEntered.text} is valid! \n Pass the phone to Player ${if (gameLogic.lastWords.size % 2 == 1) 2 else 1}"
                             showPopup = true
                         } else {
                             message =
-                                "${wordEntered.text} is invalid! \n Player ${if (lastWords.size % 2 == 1) 2 else 1} wins!"
+                                "${wordEntered.text} is invalid! \n Player ${if (gameLogic.lastWords.size % 2 == 0) 2 else 1} wins!"
                             showPopup = true
                             isEndGame = true
                         }
@@ -135,13 +135,14 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                 message = message,
                 onConfirm = {
                     var victoriousUsername: String
-                    if (lastWords.size % 2 == 1)
+                    if ((gameLogic.lastWords.size + 1)% 2 == 1)
                         victoriousUsername = gameLogic.u2
                     else
                         victoriousUsername = gameLogic.u1
 
-                    val score = Score(0, victoriousUsername, lastWords.size.toFloat())
+                    val score = Score(0, victoriousUsername, gameLogic.lastWords.size.toFloat())
                     gameLogic.EndGame(score)
+                    GameManager.reset()
                 }
             )
         } else {
@@ -160,14 +161,20 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
 
 
 @Composable
-fun PrintLastWords(lastWords: List<String>, modifier: Modifier = Modifier) {
+fun PrintLastWords(lastWords: List<String>) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        items(lastWords.size) { index ->
+        var count = 0
+        if(lastWords.size > 5)
+            count = 5
+        else
+            count = lastWords.size
+
+        items(count) { index ->
             Text(
                 text = lastWords[index],
                 modifier = Modifier
@@ -180,16 +187,16 @@ fun PrintLastWords(lastWords: List<String>, modifier: Modifier = Modifier) {
 
 suspend fun VerifyWord(
     wordToSearch: String,
-    lastWords: MutableList<String>,
+    gameLogic: GameLogic,
     database: WordDatabase
 ): Boolean {
     val wordDao = database.dao()
     val foundWord = wordDao.getWord(wordToSearch) ?: return false
 
-    val isValidWord = if (lastWords.isEmpty()) {
+    val isValidWord = if (gameLogic.lastWords.isEmpty()) {
         foundWord != null
     } else {
-        val previousWord = lastWords.firstOrNull() ?: return false
+        val previousWord = gameLogic.lastWords.firstOrNull() ?: return false
         val firstLetterMatches = previousWord.lastOrNull()
             ?.equals(wordToSearch.firstOrNull() ?: ' ', ignoreCase = true) == true
         val isOneLetterAway = isOneLetterDifferent(previousWord, wordToSearch)
@@ -198,7 +205,7 @@ suspend fun VerifyWord(
     }
 
     if (isValidWord) {
-        lastWords.add(0, wordToSearch)
+        gameLogic.lastWords.add(wordToSearch)
         return true
     }
 

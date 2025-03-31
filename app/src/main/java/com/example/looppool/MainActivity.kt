@@ -23,24 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private val ScoreSample = listOf(
-    Score(0, "Simon", 10.0f),
-    Score(0, "Sharon", 2.0f),
-    Score(0, "Billy", 51.0f),
-    Score(0, "Bob", 97.0f),
-    Score(0, "Theo", 61.0f),
-    Score(0, "Mem", 1.0f),
-    Score(0, "Dan Heng", 21.0f),
-    Score(0, "March", 91.0f),
-    Score(0, "Himeko", 13.0f),
-    Score(0, "Castorice", 1.0f),
-    Score(0, "Silph", 85.0f),
-    Score(0, "Midey", 80.0f),
-    Score(0, "Clara", 200.0f),
-    Score(0, "SVAROG", 199.0f),
-    Score(0, "Feixiao", 340.0f),
-    Score(0, "Silver Wolf", 999.0f),
-)
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("CoroutineCreationDuringComposition")
@@ -58,9 +40,6 @@ class MainActivity : ComponentActivity() {
                 populateDatabase(context, database)
             }
 
-            //TODO : REMOVE THOSE AFTER SCORE IMPLEMENTATION
-            ClearScores(this)
-            AddScore(this, ScoreSample)
 
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "mainActivity", builder = {
