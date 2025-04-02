@@ -206,7 +206,7 @@ suspend fun VerifyWord(
     }
 
     if (isValidWord) {
-        gameLogic.lastWords.add(wordToSearch)
+        gameLogic.lastWords.add(0, wordToSearch)
         return true
     }
 
