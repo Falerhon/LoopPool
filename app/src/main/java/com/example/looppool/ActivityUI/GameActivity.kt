@@ -1,5 +1,7 @@
 package com.example.looppool.ActivityUI
 
+import android.os.Build
+import android.os.VibrationEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -44,8 +48,11 @@ import com.example.looppool.ActivityLogic.Score.Score
 import com.example.looppool.ActivityLogic.SharedViewModel
 import com.example.looppool.ActivityLogic.Words.Word
 import com.example.looppool.ActivityLogic.Words.WordDatabase
+import android.os.Vibrator
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel) {
     var modifier = Modifier
@@ -57,6 +64,8 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
     var isEndGame by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
+
+    val vibrator = context.getSystemService(Vibrator::class.java)
 
     Column(
         modifier
@@ -102,11 +111,21 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                             message =
                                 "${wordEntered.text} is valid! \n Pass the phone to Player ${if (gameLogic.lastWords.size % 2 == 1) 2 else 1}"
                             showPopup = true
+
+                            val timings: LongArray = longArrayOf(50)
+                            val amplitudes: IntArray = intArrayOf(33)
+                            val repeatIndex = -1 // Do not repeat.
+                            vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, repeatIndex))
                         } else {
                             message =
                                 "${wordEntered.text} is invalid! \n Player ${if (gameLogic.lastWords.size % 2 == 0) 2 else 1} wins!"
                             showPopup = true
                             isEndGame = true
+
+                            val timings: LongArray = longArrayOf(70, 50, 90)
+                            val amplitudes: IntArray = intArrayOf(33, 0, 50)
+                            val repeatIndex = -1 // Do not repeat.
+                            vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, repeatIndex))
                         }
                     }
                 },
