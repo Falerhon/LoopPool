@@ -250,6 +250,10 @@ suspend fun VerifyWord(
             apiWord != null
         }
     } else {
+        if(gameLogic.lastWords.contains(cleanedWord))
+        {
+            return false
+        }
         if(foundWord == null){
             val apiWord = fetchWordFromAPI(cleanedWord, wordDao)
             Log.d("DictAPI", "Response code: ${apiWord?.Word}")
