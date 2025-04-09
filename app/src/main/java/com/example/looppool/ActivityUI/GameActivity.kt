@@ -49,15 +49,20 @@ import com.example.looppool.ActivityLogic.SharedViewModel
 import com.example.looppool.ActivityLogic.Words.Word
 import com.example.looppool.ActivityLogic.Words.WordDatabase
 import android.os.Vibrator
+import android.util.Log
 import androidx.annotation.RequiresApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel) {
     var modifier = Modifier
     val context = LocalContext.current
-    val gameLogic = GameManager.getInstance(context,navController,sharedViewModel)
+    val gameLogic = GameManager.getInstance(context, navController, sharedViewModel)
     val database = WordDatabase.getInstance(LocalContext.current)
     var wordEntered by remember { mutableStateOf(TextFieldValue("")) }
     var showPopup by remember { mutableStateOf(false) }
@@ -115,7 +120,13 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                             val timings: LongArray = longArrayOf(50)
                             val amplitudes: IntArray = intArrayOf(33)
                             val repeatIndex = -1 // Do not repeat.
-                            vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, repeatIndex))
+                            vibrator.vibrate(
+                                VibrationEffect.createWaveform(
+                                    timings,
+                                    amplitudes,
+                                    repeatIndex
+                                )
+                            )
                         } else {
                             message =
                                 "${wordEntered.text} is invalid! \n Player ${if (gameLogic.lastWords.size % 2 == 0) 2 else 1} wins!"
@@ -125,7 +136,13 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                             val timings: LongArray = longArrayOf(70, 50, 90)
                             val amplitudes: IntArray = intArrayOf(33, 0, 50)
                             val repeatIndex = -1 // Do not repeat.
-                            vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, repeatIndex))
+                            vibrator.vibrate(
+                                VibrationEffect.createWaveform(
+                                    timings,
+                                    amplitudes,
+                                    repeatIndex
+                                )
+                            )
                         }
                     }
                 },
@@ -154,7 +171,7 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                 message = message,
                 onConfirm = {
                     var victoriousUsername: String
-                    if ((gameLogic.lastWords.size + 1)% 2 == 1)
+                    if ((gameLogic.lastWords.size + 1) % 2 == 1)
                         victoriousUsername = gameLogic.u2
                     else
                         victoriousUsername = gameLogic.u1
@@ -188,7 +205,7 @@ fun PrintLastWords(lastWords: List<String>) {
             .padding(24.dp)
     ) {
         var count = 0
-        if(lastWords.size > 5)
+        if (lastWords.size > 5)
             count = 5
         else
             count = lastWords.size
@@ -211,7 +228,18 @@ suspend fun VerifyWord(
 ): Boolean {
     val wordDao = database.dao()
     val cleanedWord = wordToSearch.trim().lowercase()
-    val foundWord = wordDao.getWord(cleanedWord) ?: return false
+    val foundWord = wordDao.getWord(cleanedWord)
+    val apiResponse = fetchWordFromAPI(wordToSearch)
+    if(apiResponse != null){
+        Log.d("DictResult", apiResponse)
+    }
+    else{
+        Log.e("DictResult", "Failed to get response")
+    }
+
+    if(wordDao.getWord(cleanedWord) == null && apiResponse == null){
+        return false
+    }
 
     val isValidWord = if (gameLogic.lastWords.isEmpty()) {
         foundWord != null
@@ -230,6 +258,32 @@ suspend fun VerifyWord(
     }
 
     return false
+}
+
+suspend fun fetchWordFromAPI(word: String): String? = withContext(Dispatchers.IO) {
+    try {
+        val urlString = "https://api.dictionaryapi.dev/api/v2/entries/en/${word}"
+        val url = URL(urlString);
+        val connection = url.openConnection() as HttpURLConnection
+
+        connection.requestMethod = "GET"
+        connection.connectTimeout = 5000
+        connection.readTimeout = 5000
+
+        val responseCode = connection.responseCode
+        Log.d("API", "Response code: $responseCode")
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            val inputStream = connection.inputStream
+            inputStream.bufferedReader().use { it.readText() }
+        } else {
+            val errorStream = connection.errorStream?.bufferedReader()?.use { it.readText() }
+            Log.e("API", "Error stream: $errorStream")
+            null
+        }
+    } catch (e: Exception) {
+        Log.e("API", "Exception occurred", e)
+        null
+    }
 }
 
 fun isOneLetterDifferent(str1: String, str2: String): Boolean {
