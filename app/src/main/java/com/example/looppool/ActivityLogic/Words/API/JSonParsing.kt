@@ -1,16 +1,18 @@
 package com.example.looppool.ActivityLogic.Words.API
 
+import com.google.gson.annotations.SerializedName
+
 data class DictionaryResponse(
-    val word : String,
-    val meanings: List<Meaning>
+    @SerializedName("word") val word : String,
+    @SerializedName("meanings") val meanings: List<Meaning>
 )
 
 data class Meaning(
-    val partOfSpeach: String,
-    val definitions : List<Definition>
+    @SerializedName("partOfSpeech") val partOfSpeach: String,
+    @SerializedName("definitions") val definitions : List<Definition>
 )
 
 data class Definition(
-    val Definition : String,
-    val Example : String? = null
+    @SerializedName("definition") val Definition : String,
+    @SerializedName("example") val Example : String? = null
 )
