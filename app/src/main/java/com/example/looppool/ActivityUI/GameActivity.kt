@@ -51,6 +51,9 @@ import com.example.looppool.ActivityLogic.Words.WordDatabase
 import android.os.Vibrator
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.looppool.ActivityLogic.Words.API.DictionaryResponse
+import com.example.looppool.ActivityLogic.Words.WordDao
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -229,21 +232,23 @@ suspend fun VerifyWord(
     val wordDao = database.dao()
     val cleanedWord = wordToSearch.trim().lowercase()
     val foundWord = wordDao.getWord(cleanedWord)
-    val apiResponse = fetchWordFromAPI(wordToSearch)
-    if(apiResponse != null){
-        Log.d("DictResult", apiResponse)
-    }
-    else{
-        Log.e("DictResult", "Failed to get response")
-    }
-
-    if(wordDao.getWord(cleanedWord) == null && apiResponse == null){
-        return false
-    }
 
     val isValidWord = if (gameLogic.lastWords.isEmpty()) {
-        foundWord != null
+        if(foundWord != null) true
+        else{
+
+            val apiWord = fetchWordFromAPI(cleanedWord, wordDao)
+            Log.d("DictAPI", "Response code: ${apiWord?.Word}")
+            apiWord != null
+        }
     } else {
+        if(foundWord == null){
+            val apiWord = fetchWordFromAPI(cleanedWord, wordDao)
+            Log.d("DictAPI", "Response code: ${apiWord?.Word}")
+            if(apiWord == null)
+                return false
+        }
+
         val previousWord = gameLogic.lastWords.firstOrNull() ?: return false
         val firstLetterMatches = previousWord.lastOrNull()
             ?.equals(wordToSearch.firstOrNull() ?: ' ', ignoreCase = true) == true
@@ -260,7 +265,7 @@ suspend fun VerifyWord(
     return false
 }
 
-suspend fun fetchWordFromAPI(word: String): String? = withContext(Dispatchers.IO) {
+suspend fun fetchWordFromAPI(word: String, dao : WordDao): Word? = withContext(Dispatchers.IO) {
     try {
         val urlString = "https://api.dictionaryapi.dev/api/v2/entries/en/${word}"
         val url = URL(urlString);
@@ -271,15 +276,31 @@ suspend fun fetchWordFromAPI(word: String): String? = withContext(Dispatchers.IO
         connection.readTimeout = 5000
 
         val responseCode = connection.responseCode
-        Log.d("API", "Response code: $responseCode")
+        Log.d("DictAPI", "Response code: $responseCode")
         if (responseCode == HttpURLConnection.HTTP_OK) {
             val inputStream = connection.inputStream
-            inputStream.bufferedReader().use { it.readText() }
-        } else {
-            val errorStream = connection.errorStream?.bufferedReader()?.use { it.readText() }
-            Log.e("API", "Error stream: $errorStream")
-            null
+            val json = inputStream.bufferedReader().use { it.readText() }
+
+            val gson = Gson()
+            val responseList: List<DictionaryResponse> =
+                gson.fromJson(json, Array<DictionaryResponse>::class.java).toList()
+
+            val firstEntry = responseList.firstOrNull()
+            val definition =
+                firstEntry?.meanings?.firstOrNull()?.definitions?.firstOrNull()?.Definition
+
+            if (firstEntry != null) {
+                val wordEntry : Word
+                if(definition == null)
+                    wordEntry = Word(Word = word.lowercase(), Description = "")
+                else
+                    wordEntry = Word(Word = word.lowercase(), Description = definition)
+
+                dao.upsertWord(wordEntry)
+                return@withContext wordEntry
+            }
         }
+        null
     } catch (e: Exception) {
         Log.e("API", "Exception occurred", e)
         null
