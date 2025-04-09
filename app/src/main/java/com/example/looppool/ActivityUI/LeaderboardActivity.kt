@@ -54,7 +54,14 @@ fun Leaderboard(navController : NavController, scores : List<Score>, modifier: M
             .background(Color.Gray))
         {
             Box(modifier = Modifier.align(Alignment.CenterVertically)){
-                Text(text = "Name", color = Color.White,
+                Text(text = "Winner", color = Color.White,
+                    fontSize = 28.sp)
+            }
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .weight(1.0f))
+            Box(modifier = Modifier.align(Alignment.CenterVertically)){
+                Text(text = "Opponent", color = Color.White,
                     fontSize = 28.sp)
             }
             Spacer(modifier = Modifier
@@ -105,13 +112,14 @@ fun ScoreRow(
                 .padding(8.dp)
                 .border(1.dp, Color.Black)
         ) {
-            Box(){
-                Text(score.Name,
+            Box(modifier = Modifier.weight(1.0f)){
+                Text(score.WinnerName,
                     fontSize = 28.sp)
             }
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1.0f))
+            Box(modifier = Modifier.weight(1.0f)){
+                Text(score.LooserName,
+                    fontSize = 28.sp)
+            }
             Box(modifier = Modifier
                 .wrapContentWidth(Alignment.End)
                 .align(Alignment.CenterVertically)){
@@ -123,23 +131,23 @@ fun ScoreRow(
     }
 }
 private val ScorePreview = listOf(
-    Score(0, "a", 10.0f),
-    Score(0, "AA", 1.0f),
-    Score(0, "b", 2.0f),
-    Score(0, "c", 51.0f),
-    Score(0, "d", 97.0f),
-    Score(0, "e", 61.0f),
-    Score(0, "f", 1.0f),
-    Score(0, "g", 21.0f),
-    Score(0, "h", 91.0f),
-    Score(0, "i", 13.0f),
-    Score(0, "j", 1.0f),
-    Score(0, "k", 85.0f),
-    Score(0, "l", 80.0f),
-    Score(0, "m", 200.0f),
-    Score(0, "n", 199.0f),
-    Score(0, "o", 340.0f),
-    Score(0, "p", 999.0f),
+    Score(0, "a", "b", 10.0f),
+    Score(0, "AA","a", 1.0f),
+    Score(0, "b","v", 2.0f),
+    Score(0, "c","g", 51.0f),
+    Score(0, "d","d", 97.0f),
+    Score(0, "e","t", 61.0f),
+    Score(0, "f","j", 1.0f),
+    Score(0, "g","p", 21.0f),
+    Score(0, "h","z", 91.0f),
+    Score(0, "i","v", 13.0f),
+    Score(0, "j","x", 1.0f),
+    Score(0, "k","s", 85.0f),
+    Score(0, "l","a", 80.0f),
+    Score(0, "m","l", 200.0f),
+    Score(0, "n","i", 199.0f),
+    Score(0, "o","g", 340.0f),
+    Score(0, "p","a", 999.0f),
 )
 
 @Preview(showBackground = true)

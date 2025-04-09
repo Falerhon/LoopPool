@@ -174,12 +174,20 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                 message = message,
                 onConfirm = {
                     var victoriousUsername: String
-                    if ((gameLogic.lastWords.size + 1) % 2 == 1)
+                    var defeatedUsername: String
+                    if ((gameLogic.lastWords.size + 1)% 2 == 1)
+                    {
                         victoriousUsername = gameLogic.u2
+                        defeatedUsername = gameLogic.u1
+                    }
                     else
+                    {
                         victoriousUsername = gameLogic.u1
+                        defeatedUsername = gameLogic.u2
+                    }
 
-                    val score = Score(0, victoriousUsername, gameLogic.lastWords.size.toFloat())
+
+                    val score = Score(0, victoriousUsername, defeatedUsername, gameLogic.lastWords.size.toFloat())
                     gameLogic.EndGame(score)
                     GameManager.reset()
                 }
