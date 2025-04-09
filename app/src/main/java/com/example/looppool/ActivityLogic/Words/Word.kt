@@ -9,7 +9,7 @@ data class Word (
     @PrimaryKey(autoGenerate = true)
     val WordId: Int = 0,
     @ColumnInfo(name = "word")
-    val Word: String,
+    var Word: String,
     @ColumnInfo(name = "description")
-    val Description: String = ""
+    var Description: String = ""
 )
