@@ -13,9 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -30,10 +35,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.looppool.ActivityLogic.SharedViewModel
+import com.example.looppool.MainActivity
 import com.example.looppool.R
 
 @Composable
@@ -68,7 +75,7 @@ fun MainMenuActivity(navController : NavController, sharedViewModel: SharedViewM
                 .fillMaxSize()
                 .padding(16.dp)
                 .background(Color.Gray)
-                .weight(3F)){
+                .weight(2F)){
             Column(Modifier.fillMaxWidth()){
                 Text(
                     text = "Word of the day : ",
@@ -93,21 +100,6 @@ fun MainMenuActivity(navController : NavController, sharedViewModel: SharedViewM
             }
         }
 
-        Button(onClick = {
-            navController.navigate("gameActivity")
-        },
-            modifier = Modifier.padding(16.dp)
-                .weight(1F)
-                .scale(0.75F, 0.75F)
-        )
-        {
-            Text(
-                text = "Start Game",
-                modifier = Modifier.padding(16.dp),
-                fontSize = 24.sp
-            )
-        }
-
         Row(
             modifier = Modifier.weight(.5f).fillMaxWidth().padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -130,6 +122,34 @@ fun MainMenuActivity(navController : NavController, sharedViewModel: SharedViewM
                 label = { Text("Player 2") },
                 modifier = Modifier.weight(1f)
             )
+        }
+        Box(
+            modifier = Modifier.weight(1.0f).fillMaxWidth().padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center,
+        ){
+            Button(onClick = {
+                navController.navigate("gameActivity")
+            },
+                modifier = Modifier.padding(16.dp)
+                    .scale(0.75F, 0.75F)
+            )
+            {
+                Text(
+                    text = "Start Game",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 24.sp
+                )
+            }
+            IconButton(onClick = {
+                navController.navigate("leaderboardActivity")
+            },
+                modifier = Modifier.padding(16.dp)
+                    .size(60.dp)
+                    .align(Alignment.CenterEnd),
+            )
+            {
+                Image(painter = painterResource(R.drawable.podium), contentDescription = "Icon for leaderboard", Modifier.size(44.dp))
+            }
         }
 
         Spacer(modifier = Modifier.height(40.dp).weight(.5f))
