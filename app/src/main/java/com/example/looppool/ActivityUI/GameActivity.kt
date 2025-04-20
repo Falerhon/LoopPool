@@ -1,6 +1,7 @@
 package com.example.looppool.ActivityUI
 
 import android.os.Build
+import android.os.CountDownTimer
 import android.os.VibrationEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,7 @@ import com.example.looppool.ActivityLogic.Words.API.DictionaryResponse
 import com.example.looppool.ActivityLogic.Words.WordDao
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
@@ -72,6 +74,7 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
     var isEndGame by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
+    var resetTimer by remember { mutableStateOf(0) }
 
     val vibrator = context.getSystemService(Vibrator::class.java)
 
@@ -99,12 +102,7 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
         ) {
             Text(text = "Time Left", modifier = modifier, color = Color.Black, fontSize = 24.sp)
 
-            Text(
-                text = "30:00",
-                modifier = modifier,
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold
-            )
+            CountDownTimer(resetTrigger = resetTimer, onTimeOut = { CallEndGame(gameLogic) } )
 
             TextField(
                 value = wordEntered,
@@ -173,23 +171,7 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                 showPopup = showPopup,
                 message = message,
                 onConfirm = {
-                    var victoriousUsername: String
-                    var defeatedUsername: String
-                    if ((gameLogic.lastWords.size + 1)% 2 == 1)
-                    {
-                        victoriousUsername = gameLogic.u2
-                        defeatedUsername = gameLogic.u1
-                    }
-                    else
-                    {
-                        victoriousUsername = gameLogic.u1
-                        defeatedUsername = gameLogic.u2
-                    }
-
-
-                    val score = Score(0, victoriousUsername, defeatedUsername, gameLogic.lastWords.size.toFloat())
-                    gameLogic.EndGame(score)
-                    GameManager.reset()
+                    CallEndGame(gameLogic)
                 }
             )
         } else {
@@ -202,7 +184,7 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
                 }
             )
         }
-
+        resetTimer++
     }
 }
 
@@ -334,6 +316,45 @@ fun isOneLetterDifferent(str1: String, str2: String): Boolean {
     if (count == 1)
         return true
     return false
+}
+
+@Composable
+fun CountDownTimer(totalTime : Int = 30, resetTrigger: Int, onTimeOut : () -> Unit){
+    var timeLeft by remember(resetTrigger) { mutableStateOf(totalTime) }
+
+    LaunchedEffect(resetTrigger) {
+        while(timeLeft > 0){
+            delay(1000L)
+            timeLeft--
+        }
+        onTimeOut()
+    }
+
+    Text(
+        text = "$timeLeft",
+        fontSize = 36.sp,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+fun CallEndGame(gameLogic: GameLogic) {
+    var victoriousUsername: String
+    var defeatedUsername: String
+    if ((gameLogic.lastWords.size + 1)% 2 == 1)
+    {
+        victoriousUsername = gameLogic.u2
+        defeatedUsername = gameLogic.u1
+    }
+    else
+    {
+        victoriousUsername = gameLogic.u1
+        defeatedUsername = gameLogic.u2
+    }
+
+
+    val score = Score(0, victoriousUsername, defeatedUsername, gameLogic.lastWords.size.toFloat())
+    gameLogic.EndGame(score)
+    GameManager.reset()
 }
 
 @Composable
