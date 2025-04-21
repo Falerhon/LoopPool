@@ -20,7 +20,7 @@ class GameLogic(currContext: Context,navController : NavController, sharedViewMo
 
        fun EndGame(score : Score) {
         AddScore(appContext, score)
-        nav.navigate("leaderboardActivity")
+        nav.navigate("wordRecommendationActivity")
        }
 }
 

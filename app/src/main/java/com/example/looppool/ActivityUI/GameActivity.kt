@@ -227,7 +227,7 @@ suspend fun VerifyWord(
         if(foundWord != null) true
         else{
 
-            val apiWord = fetchWordFromAPI(cleanedWord, wordDao)
+            val apiWord = database.fetchWordFromAPI(cleanedWord, wordDao)
             Log.d("DictAPI", "Response code: ${apiWord?.Word}")
             apiWord != null
         }
@@ -237,7 +237,7 @@ suspend fun VerifyWord(
             return false
         }
         if(foundWord == null){
-            val apiWord = fetchWordFromAPI(cleanedWord, wordDao)
+            val apiWord = database.fetchWordFromAPI(cleanedWord, wordDao)
             Log.d("DictAPI", "Response code: ${apiWord?.Word}")
             if(apiWord == null)
                 return false
@@ -257,48 +257,6 @@ suspend fun VerifyWord(
     }
 
     return false
-}
-
-suspend fun fetchWordFromAPI(word: String, dao : WordDao): Word? = withContext(Dispatchers.IO) {
-    try {
-        val urlString = "https://api.dictionaryapi.dev/api/v2/entries/en/${word}"
-        val url = URL(urlString);
-        val connection = url.openConnection() as HttpURLConnection
-
-        connection.requestMethod = "GET"
-        connection.connectTimeout = 5000
-        connection.readTimeout = 5000
-
-        val responseCode = connection.responseCode
-        Log.d("DictAPI", "Response code: $responseCode")
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            val inputStream = connection.inputStream
-            val json = inputStream.bufferedReader().use { it.readText() }
-
-            val gson = Gson()
-            val responseList: List<DictionaryResponse> =
-                gson.fromJson(json, Array<DictionaryResponse>::class.java).toList()
-
-            val firstEntry = responseList.firstOrNull()
-            val definition =
-                firstEntry?.meanings?.firstOrNull()?.definitions?.firstOrNull()?.Definition
-
-            if (firstEntry != null) {
-                val wordEntry : Word
-                if(definition == null)
-                    wordEntry = Word(Word = word.lowercase(), Description = "")
-                else
-                    wordEntry = Word(Word = word.lowercase(), Description = definition)
-
-                dao.upsertWord(wordEntry)
-                return@withContext wordEntry
-            }
-        }
-        null
-    } catch (e: Exception) {
-        Log.e("API", "Exception occurred", e)
-        null
-    }
 }
 
 fun isOneLetterDifferent(str1: String, str2: String): Boolean {
@@ -354,7 +312,6 @@ fun CallEndGame(gameLogic: GameLogic) {
 
     val score = Score(0, victoriousUsername, defeatedUsername, gameLogic.lastWords.size.toFloat())
     gameLogic.EndGame(score)
-    GameManager.reset()
 }
 
 @Composable

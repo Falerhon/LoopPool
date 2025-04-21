@@ -21,6 +21,7 @@ import com.example.looppool.ActivityLogic.rememberSharedViewModel
 import com.example.looppool.ActivityUI.GameActivity
 import com.example.looppool.ActivityUI.Leaderboard
 import com.example.looppool.ActivityUI.MainMenuActivity
+import com.example.looppool.ActivityUI.WordRecommendation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
             val context: Context = this
 
             val database = WordDatabase.getInstance(this)
+
             CoroutineScope(Dispatchers.IO).launch {
                 populateDatabase(context, database)
             }
@@ -51,6 +53,8 @@ class MainActivity : ComponentActivity() {
                 composable("gameActivity") { GameActivity(navController, SharedViewModel) }
 
                 composable("leaderboardActivity") { Leaderboard(navController, GetScores(context)) }
+
+                composable("wordRecommendationActivity") { WordRecommendation(navController, SharedViewModel) }
             })
 
         }

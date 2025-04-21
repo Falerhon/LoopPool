@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.looppool.ActivityLogic.GameManager
 import com.example.looppool.ActivityLogic.SharedViewModel
 import com.example.looppool.ActivityLogic.Words.Word
 import com.example.looppool.ActivityLogic.Words.WordDatabase
@@ -151,6 +152,7 @@ fun MainMenuActivity(navController: NavController, sharedViewModel: SharedViewMo
         ) {
             Button(
                 onClick = {
+                    GameManager.reset()
                     navController.navigate("gameActivity")
                 },
                 modifier = Modifier
@@ -218,7 +220,7 @@ suspend fun GetWordOfTheDay(context: Context, database: WordDatabase): Word {
         )
     }
 
-    val correctedWord = fetchWordFromAPI(newWord.Word, dao)
+    val correctedWord = database.fetchWordFromAPI(newWord.Word, dao)
     var wordToSend: Word = Word(Word = "", Description = "")
     if (correctedWord == null)
         Word(
