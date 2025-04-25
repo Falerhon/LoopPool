@@ -42,6 +42,7 @@ fun WordRecommendation(navController: NavController, sharedViewModel: SharedView
 
     val lastWord = gameLogic.lastWords.first();
 
+
     Column(
         Modifier
             .fillMaxSize()

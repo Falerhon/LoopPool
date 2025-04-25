@@ -111,6 +111,9 @@ fun GameActivity(navController: NavController, sharedViewModel: SharedViewModel)
             )
             Button(
                 onClick = {
+                    if(wordEntered.text.length <= 0)
+                        return@Button
+
                     coroutineScope.launch {
                         val isValid = VerifyWord(wordEntered.text, gameLogic, database)
                         if (isValid) {
