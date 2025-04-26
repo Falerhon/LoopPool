@@ -41,7 +41,7 @@ fun Leaderboard(navController : NavController, scores : List<Score>, modifier: M
         Box(modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .background(Color.Blue))
+            .background(Color(0xFF674fa5)))
         {
             Text(text = "SCORE : ", color = Color.White,
                 fontSize = 24.sp,

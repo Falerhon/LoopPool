@@ -78,7 +78,7 @@ fun MainMenuActivity(navController: NavController, sharedViewModel: SharedViewMo
 
     ) {
         Image(
-            painter = painterResource(R.drawable.eevee), contentDescription = "Icon of the app",
+            painter = painterResource(R.drawable.looppoollogo), contentDescription = "Icon of the app",
             modifier = Modifier
                 .size(150.dp)
                 .padding(16.dp)
